@@ -3,12 +3,12 @@ import { ethers } from "ethers";
 export interface Block {
   number: number;
   timestamp: number;
-  gasUsed: bigint;
-  gasLimit: bigint;
-  baseFeePerGas: bigint;
-  averageGasPrice: bigint;
-  maxGasPrice: bigint;
-  minGasPrice: bigint;
+  gasUsed: string;
+  gasLimit: string;
+  baseFeePerGas: string;
+  averageGasPrice: string;
+  maxGasPrice: string;
+  minGasPrice: string;
 }
 
 export interface Chain {

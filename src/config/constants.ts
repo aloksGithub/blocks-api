@@ -11,16 +11,16 @@ export const chains: Chain[] = [
     ),
     model: prisma.ethereumBlock,
     startingBlock: 20670933,
-    numParallel: 1,
+    numParallel: 10,
   },
   {
     id: 137,
     name: "polygon",
     provider: new ethers.JsonRpcProvider(
-      process.env.ETHEREUM_RPC || "https://rpc.ankr.com/arbitrum"
+      process.env.ETHEREUM_RPC || "https://rpc.ankr.com/polygon"
     ),
     model: prisma.polygonBlock,
     startingBlock: 61410051,
-    numParallel: 1,
+    numParallel: 10,
   },
 ];

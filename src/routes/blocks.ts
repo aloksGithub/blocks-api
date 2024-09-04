@@ -1,5 +1,6 @@
 import express from 'express';
 import { chains } from '../config/constants';
+import { Block } from '../types';
 
 const router = express.Router();
 
@@ -10,7 +11,7 @@ router.get('/:chain', async (req, res) => {
     if (!chainData) {
       res.status(404).json({ message: 'Chain not found' });
     } else {
-      const blocks = await chainData.model.findMany({
+      const blocks: Block[] = await chainData.model.findMany({
         orderBy: { number: 'desc' },
         take: 100
       });

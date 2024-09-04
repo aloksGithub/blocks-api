@@ -24,12 +24,12 @@ schema += `
 model ${modelName} {
   number          Int      @id
   timestamp       Int
-  gasUsed         BigInt
-  gasLimit        BigInt
-  baseFeePerGas   BigInt
-  averageGasPrice BigInt
-  maxGasPrice     BigInt
-  minGasPrice     BigInt
+  gasUsed         String
+  gasLimit        String
+  baseFeePerGas   String
+  averageGasPrice String
+  maxGasPrice     String
+  minGasPrice     String
 
   @@index([timestamp])
   @@map("${tableName}")

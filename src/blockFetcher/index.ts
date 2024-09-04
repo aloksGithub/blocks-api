@@ -2,13 +2,16 @@ import { ethers } from "ethers"
 import { Block, Chain } from "../types"
 import { chains } from "../config/constants"
 
-const fetchBlocksBetween = async (provider: ethers.Provider, startBlock: number, toBlock: number, numParallel: number) => {
-  let blocks: Block[] = []
-  for (let i = startBlock; i<toBlock; i+=numParallel) {
-    const blocksToFetch = [...Array(numParallel).keys()]
-    const fetchedBlockData = await Promise.all(blocksToFetch.map(async blockIdx => (await provider.getBlock(blockIdx + i))!))
-    const formattedBlockData = await Promise.all(fetchedBlockData.map(async block => {
-      const transactions = await Promise.all(block.transactions.map(async transaction => await provider.getTransaction(transaction)))
+const fetchBlocksBetween = async (chain: Chain, startBlock: number, toBlock: number) => {
+  for (let i = startBlock; i<toBlock; i+=chain.numParallel) {
+    const blocksToFetch = [...Array(chain.numParallel).keys()]
+    const fetchedBlockData = await Promise.all(blocksToFetch.map(async blockIdx => (await chain.provider.getBlock(blockIdx + i))!))
+    const formattedBlockData: Block[] = await Promise.all(fetchedBlockData.map(async block => {
+      const transactions: ethers.TransactionResponse[] = []
+      for (const transaction of block.transactions) {
+        const txnResponse = await chain.provider.getTransaction(transaction)
+        txnResponse?transactions.push(txnResponse):{}
+      }
       let totalGasPrice = 0n
       let maxGasPrice = 0n
       let minGasPrice = ethers.MaxUint256
@@ -23,9 +26,6 @@ const fetchBlocksBetween = async (provider: ethers.Provider, startBlock: number,
           }
           totalGasPrice+=transaction.gasPrice
         } else {
-          if (!transaction.maxPriorityFeePerGas || !block.baseFeePerGas) {
-            console.log(transaction.hash, block.number)
-          }
           let gasPrice = transaction.maxPriorityFeePerGas! + block.baseFeePerGas!
           if (gasPrice>transaction.maxFeePerGas!) {
             gasPrice = transaction.maxFeePerGas!
@@ -44,35 +44,38 @@ const fetchBlocksBetween = async (provider: ethers.Provider, startBlock: number,
       return {
         number: block.number,
         timestamp: block.timestamp,
-        gasUsed: block.gasUsed,
-        gasLimit: block.gasLimit,
-        baseFeePerGas: block.baseFeePerGas || 0n,
-        averageGasPrice,
-        maxGasPrice,
-        minGasPrice
+        gasUsed: (block.gasUsed).toString(),
+        gasLimit: (block.gasLimit).toString(),
+        baseFeePerGas: (block.baseFeePerGas || 0n).toString(),
+        averageGasPrice: (averageGasPrice).toString(),
+        maxGasPrice: (maxGasPrice).toString(),
+        minGasPrice: (minGasPrice.toString())
       }
     }))
-    blocks = [...blocks, ...formattedBlockData]
+    console.log(`${chain.name} blocks at ${formattedBlockData[formattedBlockData.length-1].number}`)
+    await chain.model.createMany({
+      data: formattedBlockData
+    })
   }
-  return blocks
 }
 
-const fetchRecentBlocks = async (chain: Chain) => {
-  const latestRecordedBlock: Block | null = await chain.model.findFirst({
-    orderBy: { number: 'desc' }
-  });
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
-  const latestBlock = (await chain.provider.getBlock("latest"))!
-  const newBlocks = await fetchBlocksBetween(chain.provider, latestRecordedBlock?.number || chain.startingBlock, latestBlock.number, chain.numParallel)
-  chain.model.createMany({
-    data: newBlocks
-  })
-  console.log(`${chain.name} blocks at ${newBlocks[newBlocks.length-1]}`)
+const startChainUpdates = async (chain: Chain) => {
+  while (true) {
+    const latestRecordedBlock: Block | null = await chain.model.findFirst({
+      orderBy: { number: 'desc' }
+    });
+  
+    const latestBlock = (await chain.provider.getBlock("latest"))!
+    await fetchBlocksBetween(chain, latestRecordedBlock?.number || chain.startingBlock, latestBlock.number)
+    await delay(10000)
+  }
 }
 
 export function startBlockUpdates() {
   chains.forEach(chain => {
     console.log(`Starting block fetcher for ${chain.name}...`)
-    setInterval(() => fetchRecentBlocks(chain), 10000);
+    startChainUpdates(chain)
   });
 }
