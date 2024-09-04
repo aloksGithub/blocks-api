@@ -1,0 +1,37 @@
+
+generator client {
+provider = "prisma-client-js"
+}
+
+datasource db {
+provider = "postgresql"
+url      = env("DATABASE_URL")
+}
+
+model EthereumBlock {
+  number          Int      @id
+  timestamp       Int
+  gasUsed         BigInt
+  gasLimit        BigInt
+  baseFeePerGas   BigInt
+  averageGasPrice BigInt
+  maxGasPrice     BigInt
+  minGasPrice     BigInt
+
+  @@index([timestamp])
+  @@map("ethereum_blocks")
+}
+
+model PolygonBlock {
+  number          Int      @id
+  timestamp       Int
+  gasUsed         BigInt
+  gasLimit        BigInt
+  baseFeePerGas   BigInt
+  averageGasPrice BigInt
+  maxGasPrice     BigInt
+  minGasPrice     BigInt
+
+  @@index([timestamp])
+  @@map("polygon_blocks")
+}
