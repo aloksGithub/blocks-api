@@ -18,6 +18,7 @@ export interface Chain {
   model: any;
   startingBlock: number;
   numParallel: number;
-}[]
+}
+[];
 
-export type SupportedChain = "ethereum" | "polygon"
+export type SupportedChain = "ethereum" | "polygon";
