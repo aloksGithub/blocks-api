@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  dev-db:
+    image: postgres:13
+    container_name: dev_db
+    env_file:
+      - .env.dev
+    ports:
+      - "5433:5432"
+    volumes:
+      - dev_db_data:/var/lib/postgresql/data
+
+  staging-db:
+    image: postgres:13
+    container_name: staging_db
+    env_file:
+      - .env.stage
+    ports:
+      - "5434:5432"
+    volumes:
+      - staging_db_data:/var/lib/postgresql/data
+
+  prod-db:
+    image: postgres:13
+    container_name: prod_db
+    env_file:
+      - .env.prod
+    ports:
+      - "5435:5432"
+    volumes:
+      - prod_db_data:/var/lib/postgresql/data
+
+volumes:
+  dev_db_data:
+  staging_db_data:
+  prod_db_data:
