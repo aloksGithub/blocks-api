@@ -16,7 +16,7 @@ export interface Chain {
   name: SupportedChain;
   provider: ethers.Provider;
   model: any;
-  startingBlock: number;
+  lastUpdatedBlock: number;
   numParallel: number;
 }
 [];

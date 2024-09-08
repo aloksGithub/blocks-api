@@ -7,24 +7,21 @@ export const chains: Chain[] = [
   {
     id: 1,
     name: "ethereum",
-    provider: new ethers.WebSocketProvider(
-      process.env.ETHEREUM_WSS ||
-        //alchemy wss endpoint with api key from .env file
-        "wss://eth-mainnet.ws.alchemyapi.io/v2/" + process.env.ALCHEMY_KEY
+    provider: new ethers.JsonRpcProvider(
+      process.env.ETHEREUM_WSS || "https://rpc.ankr.com/eth"
     ),
     model: prisma.ethereumBlock,
-    startingBlock: 20670933,
+    lastUpdatedBlock: 20670933,
     numParallel: 10,
   },
   {
     id: 137,
     name: "polygon",
-    provider: new ethers.WebSocketProvider(
-      process.env.POLYGON_WSS ||
-        "wss://polygon-mainnet.g.alchemy.com/v2/" + process.env.ALCHEMY_KEY
+    provider: new ethers.JsonRpcProvider(
+      process.env.POLYGON_WSS || "https://rpc.ankr.com/polygon"
     ),
     model: prisma.polygonBlock,
-    startingBlock: 61410051,
+    lastUpdatedBlock: 61410051,
     numParallel: 10,
   },
 ];
