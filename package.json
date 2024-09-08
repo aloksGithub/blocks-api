@@ -7,7 +7,8 @@
     "start": "ts-node src/app.ts",
     "build": "tsc",
     "dev": "ts-node-dev src/app.ts",
-    "generate": "ts-node prisma/generateSchema.ts"
+    "generate": "ts-node prisma/generateSchema.ts",
+    "prune:db": "ts-node prisma/prune.ts"
   },
   "author": "",
   "license": "ISC",
